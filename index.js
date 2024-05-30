@@ -1,14 +1,16 @@
 import http from 'http';
-import WeatherService from './weather.js';
+import WeatherService from './services/weather.js';
+import S3Service from './services/aws.js';
 
 export const handler = async (event) => {
   try {
-    const weatherService = new WeatherService();
-    const cityData = await weatherService.getCityInformation((event['queryStringParameters'] || {})['city'] || 'Ankara');
+    const cityData = await WeatherService.getCityInformation((event['queryStringParameters'] || {})['city'] || 'Ankara');
+
+    await S3Service.send(cityData);
 
     return {
       statusCode: 200,
-      body: cityData,
+      body: JSON.stringify(cityData),
     };
   } catch(err) {
     return {
